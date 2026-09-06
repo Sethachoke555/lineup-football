@@ -24,7 +24,18 @@ export interface Player extends Point {
   status: 'starting' | 'substitute';
   photo: string;
   photoSettings?: PlayerPhotoSettings;
+  photoEffect?: PlayerPhotoEffect;
   transform: PhotoTransform;
+}
+/** Effect distances use a 500px-wide player card as their reference, independent of output size. */
+export interface PlayerPhotoEffect {
+  version: 1;
+  mode: 'original' | 'cutout' | '3d';
+  zoom: number; x: number; y: number; rotation: number; perspective: number; tiltX: number; tiltY: number;
+  overlap: number;
+  shadow: { enabled: boolean; x: number; y: number; blur: number; opacity: number; distance: number };
+  edge: { style: 'none' | 'outline' | 'team' | 'soft'; width: number; strength: number; blur: number; color: string; useTeamColor: boolean };
+  card: { enabled: boolean; depth: number; shadow: number; tilt: number; border: number; radius: number };
 }
 export interface Team {
   name: string; shortName: string; logo: string; opponent: string; opponentLogo: string;

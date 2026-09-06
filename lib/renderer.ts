@@ -3,6 +3,7 @@ import { drawContained, loadImage } from '@/utils/images';
 import { drawBackground } from './background-renderer';
 import { graphicLayout, playerPlacement } from './pitch-geometry';
 import { drawCroppedPhoto, playerPhotoFrame, settingsForPlayer } from './photo-crop';
+import { drawPhotoEffect, drawDepthCard } from './photo-effect-renderer';
 import { renderMatchResult } from './result-renderer';
 import { drawPitch } from './pitch-renderer';
 export { graphicLayout } from './pitch-geometry';
@@ -33,7 +34,11 @@ export function drawPlayerCard(ctx: CanvasRenderingContext2D, player: Player, pr
   ctx.beginPath(); ctx.ellipse(0, h * .51, w * .4, h * .075, 0, 0, Math.PI * 2); ctx.fillStyle = '#061c2899'; ctx.fill(); ctx.strokeStyle = `${project.colors.accent}88`; ctx.lineWidth = 1.5; ctx.stroke();
   if (image) {
     const settings = settingsForPlayer(player, { width: image.naturalWidth, height: image.naturalHeight });
-    drawCroppedPhoto(ctx, image, settings, playerPhotoFrame(settings, w, h));
+    const frame = playerPhotoFrame(settings, w, h);
+    if (player.photoEffect && player.photoEffect.mode !== 'original') {
+      drawDepthCard(ctx, frame, player.photoEffect, w, project.colors.cardBackground ?? '#090b10', project.colors.accent);
+      drawPhotoEffect(ctx, image, settings, player.photoEffect, frame, w, project.colors.accent);
+    } else drawCroppedPhoto(ctx, image, settings, frame);
   } else {
   ctx.beginPath(); ctx.moveTo(-w * .2, -h * .45); ctx.lineTo(-w * .46, -h * .3); ctx.lineTo(-w * .35, -h * .06); ctx.lineTo(-w * .25, -h * .13); ctx.lineTo(-w * .26, h * .25); ctx.lineTo(w * .26, h * .25); ctx.lineTo(w * .25, -h * .13); ctx.lineTo(w * .35, -h * .06); ctx.lineTo(w * .46, -h * .3); ctx.lineTo(w * .2, -h * .45); ctx.quadraticCurveTo(0, -h * .29, -w * .2, -h * .45); ctx.closePath();
   const kit = ctx.createLinearGradient(-w / 2, 0, w / 2, h / 2); kit.addColorStop(0, player.position === 'GK' ? '#dfab4c' : project.colors.secondary); kit.addColorStop(1, player.position === 'GK' ? '#806020' : project.colors.primary); ctx.fillStyle = kit; ctx.fill(); ctx.strokeStyle = '#ffffff60'; ctx.lineWidth = 1.4; ctx.stroke();

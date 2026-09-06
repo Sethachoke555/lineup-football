@@ -18,6 +18,6 @@ export function PhotoEditor({ player, project, onChange, onError }: { player: Pl
     <ImageUpload label="Player photo" value={player.photo} onChange={(src) => { if (src) void open(src); else onChange({ photo: '', photoSettings: undefined }); }} onError={onError} />
     {player.photo && <button className="button full-width" onClick={() => void open(player.photo, true)}>Edit Photo</button>}
     <p className="muted">Frame the full head, shoulders and upper body. Original quality and transparency are preserved.</p>
-    {draft && <PhotoCropDialog {...draft} player={player} project={project} onCancel={() => setDraft(null)} onApply={(photoSettings) => { onChange({ photo: draft.src, photoSettings }); setDraft(null); }} />}
+    {draft && <PhotoCropDialog {...draft} player={player} project={project} onCancel={() => setDraft(null)} onApply={(photoSettings, photoEffect) => { onChange({ photo: draft.src, photoSettings, photoEffect }); setDraft(null); }} />}
   </div>;
 }

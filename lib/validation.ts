@@ -69,6 +69,19 @@ export function validateProject(value: unknown): Project {
     choice(player.position, ['GK','CB','LB','RB','LWB','RWB','DM','CM','AM','LM','RM','LW','RW','ST','CF'], 'player position');
     choice(player.status, ['starting', 'substitute'], 'player status'); if (player.status === 'starting') starters++; else subs++;
     numeric(player.x, 'player X', 0, 100); numeric(player.y, 'player Y', 0, 100); image(player.photo, 'player photo');
+    if (player.photoEffect !== undefined) {
+      const e = record(player.photoEffect, 'photo effect');
+      if (e.version !== 1) throw new Error('Unsupported photo effect version.');
+      choice(e.mode, ['original', 'cutout', '3d'], 'photo effect mode');
+      for (const [key, min, max] of [['zoom', .5, 1.5], ['x', -100, 100], ['y', -100, 100], ['rotation', -30, 30], ['perspective', 600, 2000], ['tiltX', -20, 20], ['tiltY', -20, 20], ['overlap', 0, .5]] as const) numeric(e[key], `effect ${key}`, min, max);
+      const shadow = record(e.shadow, 'depth shadow'); const edge = record(e.edge, 'edge effect'); const card = record(e.card, 'depth card');
+      if (typeof shadow.enabled !== 'boolean' || typeof card.enabled !== 'boolean' || typeof edge.useTeamColor !== 'boolean') throw new Error('Invalid photo effect toggle.');
+      for (const [key, min, max] of [['x', -60, 60], ['y', -60, 60], ['blur', 0, 60], ['opacity', 0, 1], ['distance', 0, 3]] as const) numeric(shadow[key], `shadow ${key}`, min, max);
+      choice(edge.style, ['none', 'outline', 'team', 'soft'], 'edge style');
+      numeric(edge.width, 'outline width', 0, 8); numeric(edge.strength, 'glow strength', 0, 1); numeric(edge.blur, 'glow blur', 0, 50);
+      if (typeof edge.color !== 'string' || !/^#[0-9a-f]{6}$/i.test(edge.color)) throw new Error('Invalid glow color.');
+      for (const [key, min, max] of [['depth', 0, 30], ['shadow', 0, 1], ['tilt', -12, 12], ['border', 0, 6], ['radius', 0, 40]] as const) numeric(card[key], `card ${key}`, min, max);
+    }
     const t = record(player.transform, 'photo transform'); numeric(t.zoom, 'photo zoom', 1, 3); numeric(t.scale, 'photo scale', .5, 1.5); numeric(t.x, 'photo X', -100, 100); numeric(t.y, 'photo Y', -100, 100); choice(t.crop, ['portrait', 'circle', 'square'], 'crop');
     if (player.photoSettings !== undefined) {
       const s = record(player.photoSettings, 'portrait crop');

@@ -178,3 +178,12 @@ button { transition: background .15s, border-color .15s; }
 .result-controls details { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 16px; }
 .result-controls summary { cursor: pointer; font-weight: 700; }
 .result-controls .panel-fields { padding: 16px 0; }
+.photo-effects { border-top: 1px solid #3c4250; margin-top: 18px; padding-top: 18px; }
+.effect-modes, .effect-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.effect-modes .button[aria-pressed="true"] { border-color: #c6ef76; color: #d5ff87; background: #293023; }
+.effect-presets .button { font-size: 10px; padding: 7px; }
+.photo-effects details { border-top: 1px solid #343b47; padding: 12px 0; }
+.photo-effects summary { cursor: pointer; font-size: 12px; margin-bottom: 12px; }
+.photo-dialog:has(.photo-effects) { width: min(1020px, 96vw); }
+.photo-dialog .photo-card-preview > canvas { max-height: 360px; width: auto; max-width: 100%; display: block; margin: 12px auto; }
+@media (min-width: 601px) { .photo-effects { max-height: 330px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; } .photo-dialog .photo-card-preview > canvas { max-height: 250px; } }

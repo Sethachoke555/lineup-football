@@ -63,6 +63,10 @@ The preview and image export share `lib/renderer.ts`. The lineup uses a 3D-style
 
 ## Verification
 
+**3D Player Effect:** Open Edit Photo and use PHOTO EFFECT to choose Original, Cutout (for images with existing alpha), or 3D Effect. Clean Depth, Broadcast, Stadium Glow, and Poster presets update only `player.photoEffect`; None restores original rendering. Crop, original bytes, pitch coordinates, name and number remain separate. The effect controls include uniform scale, offsets, rotation, camera perspective, X/Y tilt, alpha-shaped shadow, outline/glow, head overlap, and an optional raised card. Apply saves one undoable change; Cancel discards it. Parallax Preview is temporary mouse-hover motion and is excluded from project data and export.
+
+Depth layers use Canvas 2D with a tessellated image plane, so no WebGL or additional dependency is needed. Card decoration is behind the player; names and numbers stay in front. Effects scale with the player card at each output resolution and use the same renderer in the live card, lineup, PNG and JPG. Raster caches are bounded to 24 entries / approximately 32 MB of pixel data, and preview updates are coalesced with animation frames. Existing photos and Match Result projects remain compatible. Opaque photos retain their background; automatic background removal is not implemented.
+
 Use the **LINEUP / MATCH RESULT** tabs to switch between starting-XI and full-time graphics. Match Result has independent home/away names, alpha-preserving logos, scores, goal scorers (up to 20 entries, including stoppage-time minutes), competition, date, venue, background, template/colors, and four canvas sizes. Switching modes preserves both designs. Save/Load and JSON backups include both; PNG/JPG export renders the active mode at full resolution. Older lineup projects remain compatible.
 
 ```bash
