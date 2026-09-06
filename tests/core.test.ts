@@ -7,6 +7,7 @@ import { applyTemplate, TEMPLATES } from '../lib/templates';
 import { LocalProjectRepository, STORAGE_KEY } from '../lib/storage';
 import { validateProject } from '../lib/validation';
 import { graphicLayout } from '../lib/renderer';
+import { playerPlacement, pointFromPlayerCenter, projectPitch } from '../lib/pitch-geometry';
 class MemoryStorage {
   data = new Map<string, string>();
   getItem(key: string) { return this.data.get(key) ?? null; }
@@ -42,6 +43,21 @@ test('all output layouts keep formation cards inside the pitch region', () => {
       assert.ok(point.y / 100 * layout.pitch.height - layout.cardHeight * .55 >= 0);
       assert.ok(point.y / 100 * layout.pitch.height + layout.cardHeight * .55 <= layout.pitch.height);
     }
+  }
+});
+test('3D player centers invert accurately for dragging in every output format', () => {
+  for (const size of Object.keys(SIZES) as (keyof typeof SIZES)[]) {
+    const layout = graphicLayout({ ...createProject(), size });
+    for (const formation of FORMATIONS) for (const point of formationSlots(formation)) {
+      const card = playerPlacement(layout, point); const inverse = pointFromPlayerCenter(layout, card);
+      assert.ok(Math.abs(inverse.x - point.x) < 1e-9); assert.ok(Math.abs(inverse.y - point.y) < 1e-9);
+      assert.ok(card.y - card.height * .55 > layout.height * .235, 'cards stay below the heading');
+      assert.ok(card.y + card.height * .55 < layout.height * .825, 'cards stay above substitutes');
+      assert.ok(card.x - card.width * .55 >= 0 && card.x + card.width * .55 <= layout.width);
+    }
+    const farWidth = projectPitch(layout, { x: 100, y: 0 }).x - projectPitch(layout, { x: 0, y: 0 }).x;
+    const nearWidth = projectPitch(layout, { x: 100, y: 100 }).x - projectPitch(layout, { x: 0, y: 100 }).x;
+    assert.ok(farWidth < nearWidth * .7);
   }
 });
 test('save, load, update, duplicate and delete round-trip through the repository', async () => {

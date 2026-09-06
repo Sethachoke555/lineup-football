@@ -31,11 +31,12 @@ test('uploads alpha PNG, adjusts crop and exports all sizes as PNG/JPG', async (
   const source = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 120; c.height = 160; const ctx = c.getContext('2d')!; ctx.fillStyle = '#fa00ff'; ctx.fillRect(30, 20, 60, 120); return c.toDataURL('image/png').split(',')[1]; });
   await page.getByRole('button', { name: 'Select SETHACHOKE', exact: true }).click();
   await page.getByLabel('Player photo', { exact: true }).setInputFiles({ name: 'cutout.png', mimeType: 'image/png', buffer: Buffer.from(source, 'base64') });
-  await expect(page.getByLabel('Photo zoom', { exact: false })).toBeVisible();
-  await page.getByLabel('Crop frame').selectOption('circle'); await page.getByLabel('Photo zoom', { exact: false }).fill('1.5');
+  await expect(page.getByRole('dialog', { name: 'Edit Player Photo' })).toBeVisible();
+  await page.getByLabel('Zoom', { exact: true }).fill('734');
+  await page.getByRole('button', { name: 'Apply', exact: true }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('touchline.projects.v1')!)[0]);
-  expect(saved.players[8].photo).toBe(`data:image/png;base64,${source}`); expect(saved.players[8].transform.zoom).toBe(1.5);
+  expect(saved.players[8].photo).toBe(`data:image/png;base64,${source}`); expect(saved.players[8].photoSettings.zoom).toBeCloseTo(1.5, 2);
   await page.getByRole('button', { name: 'Layout', exact: true }).click();
   for (const [size, width, height] of [['portrait', 1080, 1350], ['square', 1080, 1080], ['landscape', 1920, 1080], ['story', 1080, 1920]] as const) {
     await page.getByLabel('Canvas format').selectOption(size);

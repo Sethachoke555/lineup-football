@@ -1,8 +1,8 @@
 import { renderGraphic } from '@/lib/renderer';
 import type { Project } from '@/types/project';
 export function filename(project: Project) {
-  const team = project.team.name.toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'team';
-  return `${team}-lineup-${project.team.date.slice(0, 4) || new Date().getFullYear()}`;
+  const team = (project.mode === 'result' ? project.matchResult?.home.name || project.team.name : project.team.name).toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'team';
+  return `${team}-${project.mode === 'result' ? 'match-result' : 'lineup'}-${(project.mode === 'result' ? project.matchResult?.date || project.team.date : project.team.date).slice(0, 4) || new Date().getFullYear()}`;
 }
 export function downloadBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = name; document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 10_000);

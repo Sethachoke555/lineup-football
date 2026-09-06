@@ -1,9 +1,23 @@
-import { RotateCcw } from 'lucide-react';
-import type { Player } from '@/types/project';
-import { DEFAULT_TRANSFORM } from '@/lib/defaults';
-import { Range, Select } from '@/components/sidebar/fields';
+'use client';
+import { useState } from 'react';
+import type { Player, Project, PlayerPhotoSettings } from '@/types/project';
+import { DEFAULT_PHOTO_SETTINGS, settingsForPlayer } from '@/lib/photo-crop';
+import { loadImage } from '@/utils/images';
 import { ImageUpload } from './image-upload';
-export function PhotoEditor({ player, onChange, onError }: { player: Player; onChange: (patch: Partial<Player>) => void; onError: (message: string) => void }) {
-  const transform = (patch: Partial<Player['transform']>) => onChange({ transform: { ...player.transform, ...patch } });
-  return <div className="inspector-section"><h3>Player photo</h3><ImageUpload label="Player photo" value={player.photo} onChange={(photo) => onChange({ photo, transform: { ...DEFAULT_TRANSFORM } })} onError={onError} />{player.photo && <><Select label="Crop frame" value={player.transform.crop} onChange={(crop) => transform({ crop: crop as Player['transform']['crop'] })}><option value="portrait">Portrait / cutout</option><option value="circle">Circle</option><option value="square">Square</option></Select><Range label="Photo zoom" value={player.transform.zoom} min={1} max={3} step={0.05} onChange={(zoom) => transform({ zoom })} /><Range label="Photo scale" value={player.transform.scale} min={0.5} max={1.5} step={0.05} onChange={(scale) => transform({ scale })} /><Range label="Move X" value={player.transform.x} min={-100} max={100} onChange={(x) => transform({ x })} unit="%" /><Range label="Move Y" value={player.transform.y} min={-100} max={100} onChange={(y) => transform({ y })} unit="%" /><button className="button full-width" onClick={() => onChange({ transform: { ...DEFAULT_TRANSFORM } })}><RotateCcw size={13} />Reset photo position</button><p className="muted">Transparent PNGs keep their cutout edges. Zoom and move the image inside the crop frame.</p></>}</div>;
+import { PhotoCropDialog } from './photo-crop-dialog';
+
+export function PhotoEditor({ player, project, onChange, onError }: { player: Player; project: Project; onChange: (patch: Partial<Player>) => void; onError: (message: string) => void }) {
+  const [draft, setDraft] = useState<{ src: string; image: HTMLImageElement; settings: PlayerPhotoSettings } | null>(null);
+  const open = async (src: string, existing = false) => {
+    try {
+      const image = await loadImage(src);
+      setDraft({ src, image, settings: existing ? settingsForPlayer(player, { width: image.naturalWidth, height: image.naturalHeight }) : { ...DEFAULT_PHOTO_SETTINGS } });
+    } catch (error) { onError(error instanceof Error ? error.message : 'Unable to open photo.'); }
+  };
+  return <div className="inspector-section"><h3>Player photo</h3>
+    <ImageUpload label="Player photo" value={player.photo} onChange={(src) => { if (src) void open(src); else onChange({ photo: '', photoSettings: undefined }); }} onError={onError} />
+    {player.photo && <button className="button full-width" onClick={() => void open(player.photo, true)}>Edit Photo</button>}
+    <p className="muted">Frame the full head, shoulders and upper body. Original quality and transparency are preserved.</p>
+    {draft && <PhotoCropDialog {...draft} player={player} project={project} onCancel={() => setDraft(null)} onApply={(photoSettings) => { onChange({ photo: draft.src, photoSettings }); setDraft(null); }} />}
+  </div>;
 }

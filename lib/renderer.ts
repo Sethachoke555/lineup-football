@@ -1,14 +1,11 @@
-import { SIZES, type Project, type Player } from '@/types/project';
+import { type Project, type Player } from '@/types/project';
 import { drawContained, loadImage } from '@/utils/images';
 import { drawBackground } from './background-renderer';
-export function graphicLayout(project: Project) {
-  const [width, height] = SIZES[project.size];
-  const landscape = width > height;
-  const unit = Math.min(width, height) / 1080;
-  const pitch = { x: width * (landscape ? .055 : .07), y: height * .24, width: width * (landscape ? .89 : .86), height: height * .57 };
-  const cardWidth = Math.min(pitch.width / 5.15, pitch.height / 4.85);
-  return { width, height, unit, pitch, cardWidth, cardHeight: cardWidth * 1.05 };
-}
+import { graphicLayout, playerPlacement } from './pitch-geometry';
+import { drawCroppedPhoto, playerPhotoFrame, settingsForPlayer } from './photo-crop';
+import { renderMatchResult } from './result-renderer';
+import { drawPitch } from './pitch-renderer';
+export { graphicLayout } from './pitch-geometry';
 function text(ctx: CanvasRenderingContext2D, value: string, x: number, y: number, size: number, color: string, maxWidth: number, align: CanvasTextAlign = 'left', weight = 700) {
   ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'middle';
   ctx.font = `${weight} ${size}px Arial, "Noto Sans Thai", Tahoma, sans-serif`;
@@ -23,54 +20,41 @@ function crest(ctx: CanvasRenderingContext2D, label: string, x: number, y: numbe
   ctx.fillStyle = project.colors.secondary; ctx.fill(); ctx.strokeStyle = project.colors.text; ctx.lineWidth = size * .025; ctx.stroke();
   text(ctx, label, 0, 0, size * .24, project.colors.text, size * .82, 'center', 900); ctx.restore();
 }
-function drawPitch(ctx: CanvasRenderingContext2D, project: Project) {
-  const { pitch: p, unit } = graphicLayout(project);
-  ctx.save();
-  for (let i = 0; i < 8; i++) { ctx.fillStyle = i % 2 === 0 ? '#ffffff04' : '#00000006'; ctx.fillRect(p.x, p.y + p.height * i / 8, p.width, p.height / 8); }
-  ctx.strokeStyle = project.template === 'minimal' ? '#12244322' : '#ffffff26'; ctx.lineWidth = 2 * unit;
-  ctx.strokeRect(p.x, p.y, p.width, p.height);
-  ctx.beginPath(); ctx.moveTo(p.x, p.y + p.height / 2); ctx.lineTo(p.x + p.width, p.y + p.height / 2); ctx.stroke();
-  ctx.beginPath(); ctx.ellipse(p.x + p.width / 2, p.y + p.height / 2, p.width * .15, p.height * .15, 0, 0, Math.PI * 2); ctx.stroke();
-  for (const bottom of [false, true]) {
-    const by = bottom ? p.y + p.height : p.y;
-    const direction = bottom ? -1 : 1;
-    ctx.strokeRect(p.x + p.width * .25, by, p.width * .5, direction * p.height * .17);
-    ctx.strokeRect(p.x + p.width * .38, by, p.width * .24, direction * p.height * .065);
-    ctx.beginPath(); ctx.arc(p.x + p.width / 2, by + direction * p.height * .115, 2.5 * unit, 0, Math.PI * 2); ctx.stroke();
-  }
+function drawPlayer(ctx: CanvasRenderingContext2D, player: Player, project: Project, image?: HTMLImageElement) {
+  const { x, y, width: w, height: h } = playerPlacement(graphicLayout(project), player);
+  ctx.save(); ctx.translate(x, y);
+  drawPlayerCard(ctx, player, project, w, h, image);
   ctx.restore();
 }
-function drawPlayer(ctx: CanvasRenderingContext2D, player: Player, project: Project, image?: HTMLImageElement) {
-  const { pitch, cardWidth: w, cardHeight: h } = graphicLayout(project);
-  const x = pitch.x + pitch.width * player.x / 100;
-  const y = pitch.y + pitch.height * player.y / 100;
-  ctx.save(); ctx.translate(x, y);
-  const shadow = ctx.createRadialGradient(0, h * .26, 0, 0, h * .26, w * .55); shadow.addColorStop(0, '#00000050'); shadow.addColorStop(1, '#00000000'); ctx.fillStyle = shadow; ctx.fillRect(-w * .6, -h * .25, w * 1.2, h);
+export function drawPlayerCard(ctx: CanvasRenderingContext2D, player: Player, project: Project, w: number, h: number, image?: HTMLImageElement) {
+  ctx.save();
+  ctx.save(); ctx.translate(w * .13, h * .53); ctx.scale(1, .23);
+  const shadow = ctx.createRadialGradient(0, 0, 0, 0, 0, w * .7); shadow.addColorStop(0, '#000000a0'); shadow.addColorStop(1, '#00000000'); ctx.fillStyle = shadow; ctx.fillRect(-w, -w, w * 2, w * 2); ctx.restore();
+  ctx.beginPath(); ctx.ellipse(0, h * .51, w * .4, h * .075, 0, 0, Math.PI * 2); ctx.fillStyle = '#061c2899'; ctx.fill(); ctx.strokeStyle = `${project.colors.accent}88`; ctx.lineWidth = 1.5; ctx.stroke();
   if (image) {
-    const t = player.transform; const frameWidth = w * .88; const frameHeight = t.crop === 'portrait' ? h * .8 : frameWidth;
-    ctx.save(); ctx.beginPath();
-    if (t.crop === 'circle') ctx.ellipse(0, -h * .12, frameWidth / 2, frameWidth / 2, 0, 0, Math.PI * 2);
-    else ctx.rect(-frameWidth / 2, -h * .52, frameWidth, frameHeight);
-    ctx.clip();
-    const fit = (t.crop === 'portrait' ? Math.min : Math.max)(frameWidth / image.naturalWidth, frameHeight / image.naturalHeight) * t.zoom * t.scale;
-    const iw = image.naturalWidth * fit; const ih = image.naturalHeight * fit;
-    ctx.drawImage(image, -iw / 2 + t.x / 100 * frameWidth / 2, -h * .52 + (frameHeight - ih) / 2 + t.y / 100 * frameHeight / 2, iw, ih);
-    ctx.restore();
+    const settings = settingsForPlayer(player, { width: image.naturalWidth, height: image.naturalHeight });
+    drawCroppedPhoto(ctx, image, settings, playerPhotoFrame(settings, w, h));
   } else {
   ctx.beginPath(); ctx.moveTo(-w * .2, -h * .45); ctx.lineTo(-w * .46, -h * .3); ctx.lineTo(-w * .35, -h * .06); ctx.lineTo(-w * .25, -h * .13); ctx.lineTo(-w * .26, h * .25); ctx.lineTo(w * .26, h * .25); ctx.lineTo(w * .25, -h * .13); ctx.lineTo(w * .35, -h * .06); ctx.lineTo(w * .46, -h * .3); ctx.lineTo(w * .2, -h * .45); ctx.quadraticCurveTo(0, -h * .29, -w * .2, -h * .45); ctx.closePath();
   const kit = ctx.createLinearGradient(-w / 2, 0, w / 2, h / 2); kit.addColorStop(0, player.position === 'GK' ? '#dfab4c' : project.colors.secondary); kit.addColorStop(1, player.position === 'GK' ? '#806020' : project.colors.primary); ctx.fillStyle = kit; ctx.fill(); ctx.strokeStyle = '#ffffff60'; ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.save(); ctx.clip();
+  const fabric = ctx.createLinearGradient(-w * .3, 0, w * .3, 0); fabric.addColorStop(0, '#00000040'); fabric.addColorStop(.3, '#ffffff35'); fabric.addColorStop(.53, '#ffffff05'); fabric.addColorStop(1, '#00000060'); ctx.fillStyle = fabric; ctx.fillRect(-w / 2, -h / 2, w, h);
+  ctx.strokeStyle = '#ffffff38'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-w * .22, -h * .34); ctx.lineTo(-w * .18, h * .19); ctx.moveTo(w * .22, -h * .34); ctx.lineTo(w * .18, h * .19); ctx.stroke(); ctx.restore();
   text(ctx, player.number, 0, -h * .075, w * .28, '#ffffff', w * .42, 'center', 900);
   ctx.fillStyle = project.colors.accent; ctx.fillRect(-w * .25, h * .18, w * .5, h * .035);
   }
-  rounded(ctx, -w * .52, h * .28, w * 1.04, h * .22, 2, project.template === 'minimal' ? '#ffffffee' : '#071327ef');
-  rounded(ctx, -w * .52, h * .28, w * .22, h * .22, 2, project.colors.accent);
-  text(ctx, player.number, -w * .41, h * .39, w * .12, '#ffffff', w * .19, 'center', 900);
+  rounded(ctx, -w * .5, h * .31, w * 1.04, h * .22, 2, '#020916');
+  rounded(ctx, -w * .52, h * .28, w * 1.04, h * .22, 2, project.colors.cardBackground ?? '#090b10');
+  ctx.fillStyle = '#ffffff50'; ctx.fillRect(-w * .52, h * .28, w * 1.04, 1);
+  ctx.fillStyle = '#ffffff40'; ctx.fillRect(-w * .29, h * .32, 1, h * .14);
+  text(ctx, player.number, -w * .41, h * .39, w * .12, project.colors.accent, w * .19, 'center', 900);
   let name = (project.text.useNickname && player.nickname ? player.nickname : player.name) || 'PLAYER';
   if (project.text.uppercase) name = name.toUpperCase();
-  text(ctx, name, w * .1, h * .39, w * .135 * project.text.size, project.colors.text, w * .76, 'center', 800);
+  text(ctx, name, w * .1, h * .39, w * .135 * project.text.size, project.colors.cardText ?? '#ffffff', w * .76, 'center', 800);
   ctx.restore();
 }
 export async function renderGraphic(canvas: HTMLCanvasElement, project: Project) {
+  if (project.mode === 'result') return renderMatchResult(canvas, project);
   const sources = [...new Set([project.team.logo, project.team.opponentLogo, project.background.kind === 'custom' ? project.background.image : '', ...project.players.map((p) => p.photo)].filter(Boolean))];
   const loaded = await Promise.all(sources.map(async (src) => [src, await loadImage(src)] as const));
   const images = new Map(loaded);
@@ -90,7 +74,7 @@ export async function renderGraphic(canvas: HTMLCanvasElement, project: Project)
   if (project.players.some((p) => p.status === 'substitute') && project.team.coach) text(ctx, `COACH / ${project.team.coach}`, w * .5, h * .219, 13 * u, project.colors.text, w * .42, 'center', 500);
   text(ctx, project.formation, w * .93, h * .219, 23 * u, project.colors.text, w * .2, 'right', 800);
   drawPitch(ctx, project);
-  project.players.filter((p) => p.status === 'starting').forEach((p) => drawPlayer(ctx, p, project, images.get(p.photo)));
+  project.players.filter((p) => p.status === 'starting').sort((a, b) => a.y - b.y).forEach((p) => drawPlayer(ctx, p, project, images.get(p.photo)));
   const subs = project.players.filter((p) => p.status === 'substitute');
   if (subs.length) {
     text(ctx, 'SUBSTITUTES', w * .055, h * .835, 12 * u, project.colors.text, w * .18, 'left', 700);

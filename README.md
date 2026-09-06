@@ -57,11 +57,13 @@ public/backgrounds/          Optional future packaged background assets
 public/templates/            Optional future packaged template assets
 ```
 
-The preview and image export share `lib/renderer.ts`. Player coordinates are pitch-relative percentages, independent of output resolution. Uploaded image transforms are separate from pitch positions. Backgrounds and shirt/crest artwork are drawn locally with Canvas primitives.
+The preview and image export share `lib/renderer.ts`. The lineup uses a 3D-style perspective pitch with raised edges, goal frames, shaded shirts and upright player cards with ground shadows. `lib/pitch-geometry.ts` shares the perspective and inverse drag calculations between rendering and interaction. Saved player coordinates remain pitch-relative percentages, independent of output resolution; existing projects work without migration. Uploaded image transforms are separate from pitch positions. Backgrounds and shirt/crest artwork are drawn locally with Canvas primitives.
 
 `ProjectRepository` in `lib/storage.ts` separates persistence from editor state. A future Supabase/PostgreSQL repository can implement its asynchronous methods; embedded image data URLs should then move to object storage. See [ARCHITECTURE.md](ARCHITECTURE.md) for the phase plan and design decisions.
 
 ## Verification
+
+Use the **LINEUP / MATCH RESULT** tabs to switch between starting-XI and full-time graphics. Match Result has independent home/away names, alpha-preserving logos, scores, goal scorers (up to 20 entries, including stoppage-time minutes), competition, date, venue, background, template/colors, and four canvas sizes. Switching modes preserves both designs. Save/Load and JSON backups include both; PNG/JPG export renders the active mode at full resolution. Older lineup projects remain compatible.
 
 ```bash
 npm run typecheck
@@ -72,6 +74,10 @@ npm run test:e2e
 
 Browser tests use installed Google Chrome in headless mode and start a local dev server if needed. If Chrome is not installed, install it or change `channel` in `playwright.config.ts` and install the corresponding Playwright browser. Screenshots and failure traces are written under `test-results/`.
 
-The tests cover formation geometry, template data preservation, storage round-trips and quota failures, invalid imports, drag and history, squad capacity, image upload, export dimensions, JSON backup/import, and responsive editing.
+The tests cover formation geometry, template data preservation, storage round-trips and quota failures, invalid imports, drag and history, squad capacity, image upload, export dimensions, JSON backup/import, and responsive editing. Photo tests exercise portrait, landscape, 24-megapixel JPEG, transparent PNG, edge-positioned WEBP, very tall and very wide sources, plus mobile touch dragging and export/preview pixel equality.
+
+Player uploads open **Edit Player Photo** before changing the project. Drag, scroll or use the zoom slider to frame the portrait; arrow keys also move it. Center retains zoom, Reset fits the whole source with headroom in a 4:5 frame, Cancel discards the draft, and Apply records one undoable change. **Edit Photo** restores saved framing. Original image bytes remain in `player.photo`; normalized offsets, zoom and frame dimensions live in `player.photoSettings`. Existing legacy crops retain their appearance until Reset is chosen. Card background/name colors and the accent used for shirt numbers are configurable in Style.
+
+The editor, lineup and full-resolution export share crop geometry and card drawing. PNG alpha is preserved without recompression. Upload limits remain 12 MB and 32 megapixels; browser storage capacity still applies, so JSON backups are useful for image-heavy squads. `lib/photo-processing.ts` defines the future background-removal service boundary; no removal service is currently enabled.
 
 The current app targets modern desktop Chrome/Edge, with basic tablet and mobile editing. Browser tests currently exercise Chrome. Server-side accounts, cloud storage, collaborative editing, and automatic photo background removal are future additions.

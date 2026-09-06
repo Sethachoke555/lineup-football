@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { Settings2, Users, Palette, LayoutGrid, ImageIcon, X } from 'lucide-react';
+import { MatchResultEditor } from './match-result-editor';
+import { createMatchResult } from '@/lib/match-result';
 import { useProject } from './use-project';
 import { Toolbar } from '@/components/toolbar/toolbar';
 import { ProjectActions } from '@/components/toolbar/project-actions';
@@ -48,7 +50,8 @@ export function Editor() {
 
   return <div className="studio">
     <Toolbar name={project.name} onName={(name) => edit((p) => ({ ...p, name }))} {...{ undo, redo, canUndo, canRedo }} reset={() => { if (confirm('Reset this project? You can undo this action.')) replace(createProject()); }}><ProjectActions project={project} onLoad={(p) => { replace(p); setSelectedId(null); }} notify={setMessage} /></Toolbar>
-    <div className="workspace">
+    <nav className="mode-tabs" aria-label="Studio mode">{(['lineup', 'result'] as const).map((mode) => <button key={mode} aria-pressed={(project.mode ?? 'lineup') === mode} onClick={() => edit((p) => ({ ...p, mode, ...(mode === 'result' && !p.matchResult ? { matchResult: createMatchResult(p) } : {}) }))}>{mode === 'lineup' ? 'LINEUP' : 'MATCH RESULT'}</button>)}</nav>
+    {project.mode === 'result' && project.matchResult ? <MatchResultEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, matchResult: { ...p.matchResult!, ...patch } }))} /> : <div className="workspace">
       <aside className="left-sidebar">
         <nav className="side-tabs" aria-label="Editor panels">
           {[
@@ -73,12 +76,13 @@ export function Editor() {
       <aside className="right-sidebar">
         <PlayerInspector player={selectedPlayer} project={project} onChange={updatePlayer} onText={(patch) => edit((p) => ({ ...p, text: { ...p.text, ...patch } }))}>
           {selectedPlayer && <>
-            <PhotoEditor key={selectedId} player={selectedPlayer} onChange={updatePlayer} onError={setMessage} />
+            <PhotoEditor key={selectedId} player={selectedPlayer} project={project} onChange={updatePlayer} onError={setMessage} />
             <PositionEditor player={selectedPlayer} onChange={updatePlayer} />
           </>}
         </PlayerInspector>
       </aside>
     </div>
+    }
     {message && <div className="status-message" role="status">{message}<button aria-label="Dismiss notification" onClick={() => setMessage('')}><X size={16} /></button></div>}
   </div>;
 }
