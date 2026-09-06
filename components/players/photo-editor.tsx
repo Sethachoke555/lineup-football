@@ -1,0 +1,9 @@
+import { RotateCcw } from 'lucide-react';
+import type { Player } from '@/types/project';
+import { DEFAULT_TRANSFORM } from '@/lib/defaults';
+import { Range, Select } from '@/components/sidebar/fields';
+import { ImageUpload } from './image-upload';
+export function PhotoEditor({ player, onChange, onError }: { player: Player; onChange: (patch: Partial<Player>) => void; onError: (message: string) => void }) {
+  const transform = (patch: Partial<Player['transform']>) => onChange({ transform: { ...player.transform, ...patch } });
+  return <div className="inspector-section"><h3>Player photo</h3><ImageUpload label="Player photo" value={player.photo} onChange={(photo) => onChange({ photo, transform: { ...DEFAULT_TRANSFORM } })} onError={onError} />{player.photo && <><Select label="Crop frame" value={player.transform.crop} onChange={(crop) => transform({ crop: crop as Player['transform']['crop'] })}><option value="portrait">Portrait / cutout</option><option value="circle">Circle</option><option value="square">Square</option></Select><Range label="Photo zoom" value={player.transform.zoom} min={1} max={3} step={0.05} onChange={(zoom) => transform({ zoom })} /><Range label="Photo scale" value={player.transform.scale} min={0.5} max={1.5} step={0.05} onChange={(scale) => transform({ scale })} /><Range label="Move X" value={player.transform.x} min={-100} max={100} onChange={(x) => transform({ x })} unit="%" /><Range label="Move Y" value={player.transform.y} min={-100} max={100} onChange={(y) => transform({ y })} unit="%" /><button className="button full-width" onClick={() => onChange({ transform: { ...DEFAULT_TRANSFORM } })}><RotateCcw size={13} />Reset photo position</button><p className="muted">Transparent PNGs keep their cutout edges. Zoom and move the image inside the crop frame.</p></>}</div>;
+}

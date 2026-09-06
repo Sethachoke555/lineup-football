@@ -1,0 +1,7 @@
+import { RotateCcw } from 'lucide-react';
+import { FORMATIONS, SIZES, type Project, type Formation, type CanvasSize } from '@/types/project';
+import { formationSlots } from '@/lib/formations';
+import { Select } from './fields';
+export function FormationSettings({ project, onFormation, onSize }: { project: Project; onFormation: (formation: Formation) => void; onSize: (size: CanvasSize) => void }) {
+  return <div className="panel-fields"><div className="section-heading"><h2>Formation & format</h2><span>03</span></div><Select label="Canvas format" value={project.size} onChange={(size) => onSize(size as CanvasSize)}>{Object.entries(SIZES).map(([name, size]) => <option key={name} value={name}>{name[0].toUpperCase() + name.slice(1)} · {size.join(' × ')}</option>)}</Select><p className="muted">Choose a shape for your starting eleven. The first starter occupies the goalkeeper slot.</p><div className="formation-grid">{FORMATIONS.map((formation) => <button key={formation} className={`formation-option ${project.formation === formation ? 'active' : ''}`} onClick={() => onFormation(formation)}><span className="mini-pitch">{formationSlots(formation).map((point, i) => <i key={i} style={{ left: `${point.x}%`, top: `${point.y}%` }} />)}</span><strong>{formation}</strong></button>)}</div><button className="button full-width" onClick={() => onFormation(project.formation)}><RotateCcw size={14} />Reset formation</button></div>;
+}
