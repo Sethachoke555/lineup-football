@@ -198,3 +198,10 @@ button { transition: background .15s, border-color .15s; }
 .starting-controls { padding: 18px; overflow-y: auto; }
 .starting-controls .photo-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 .starting-controls .checkbox-field { margin: 14px 0; }
+
+.removal-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.removal-comparison figure { margin: 0; min-width: 0; background: repeating-conic-gradient(#dadada 0% 25%, #fff 0% 50%) 0 / 20px 20px; border-radius: 8px; overflow: hidden; }
+.removal-comparison figcaption { background: #141b29; color: white; padding: 10px; }
+.removal-comparison [role="img"] { height: min(50vh, 480px); background-size: contain; background-repeat: no-repeat; background-position: center; }
+.removal-dialog footer { flex-wrap: wrap; gap: 8px; }
+@media (max-width: 600px) { .removal-comparison { gap: 8px; } .removal-comparison [role="img"] { height: 32vh; } }
