@@ -16,6 +16,7 @@ export interface PlayerPhotoSettings {
   legacyFrame?: PhotoTransform['crop'];
 }
 export interface Player extends Point {
+  playerPhoto?: PlayerPhotoVersions;
   id: string;
   name: string;
   nickname: string;
@@ -60,11 +61,18 @@ export interface StartingLineupPlayer {
   displayName?: string;
 }
 export interface StartingLineupHero {
+  playerPhoto?: PlayerPhotoVersions;
   src: string;
   playerId?: string;
   x: number;
   y: number;
   zoom: number;
+}
+/** Source bytes are retained independently of crop and visual effects. */
+export interface PlayerPhotoVersions {
+  originalSrc: string;
+  cutoutSrc: string;
+  activeVersion: 'original' | 'cutout';
 }
 export interface StartingLineupMatchInfo {
   enabled: boolean;

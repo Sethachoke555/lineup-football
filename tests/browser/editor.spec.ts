@@ -31,6 +31,7 @@ test('uploads alpha PNG, adjusts crop and exports all sizes as PNG/JPG', async (
   const source = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 120; c.height = 160; const ctx = c.getContext('2d')!; ctx.fillStyle = '#fa00ff'; ctx.fillRect(30, 20, 60, 120); return c.toDataURL('image/png').split(',')[1]; });
   await page.getByRole('button', { name: 'Select SETHACHOKE', exact: true }).click();
   await page.getByLabel('Player photo', { exact: true }).setInputFiles({ name: 'cutout.png', mimeType: 'image/png', buffer: Buffer.from(source, 'base64') });
+  await page.getByRole('button', { name: 'Keep Original', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Edit Player Photo' })).toBeVisible();
   await page.getByLabel('Zoom', { exact: true }).fill('734');
   await page.getByRole('button', { name: 'Apply', exact: true }).click();

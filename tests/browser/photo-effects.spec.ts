@@ -13,6 +13,7 @@ async function upload(page: Page, opaque = false) {
     return c.toDataURL(opaque ? 'image/jpeg' : 'image/png').split(',')[1];
   }, opaque);
   await page.getByLabel('Player photo', { exact: true }).setInputFiles({ name: opaque ? 'player.jpg' : 'cutout.png', mimeType: opaque ? 'image/jpeg' : 'image/png', buffer: Buffer.from(src, 'base64') });
+  await page.getByRole('button', { name: 'Keep Original', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Edit Player Photo' })).toBeVisible();
 }
 const preview = (page: Page) => page.getByLabel('Live player card preview');

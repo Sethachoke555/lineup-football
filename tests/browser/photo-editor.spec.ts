@@ -14,12 +14,12 @@ for (const [label, width, height, mime] of [
       return c.toDataURL(mime).split(',')[1];
     }, { width, height, mime });
     const upload = () => page.getByLabel('Player photo', { exact: true }).setInputFiles({ name: 'player.' + mime.split('/')[1], mimeType: mime, buffer: Buffer.from(source, 'base64') });
-    await upload();
+    await upload(); await page.getByRole('button', { name: 'Keep Original', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'Edit Player Photo' });
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Edit Photo', exact: true })).toHaveCount(0);
-    await upload(); await expect(dialog).toBeVisible();
+    await upload(); await page.getByRole('button', { name: 'Keep Original', exact: true }).click(); await expect(dialog).toBeVisible();
     const crop = page.getByLabel('Drag to position player photo');
     if (label === 'portrait') await page.screenshot({ path: 'test-results/photo-dialog.png' });
     const before = await crop.evaluate((c: HTMLCanvasElement) => c.toDataURL());
@@ -66,6 +66,7 @@ test('mobile touch drag and modal fit', async ({ browser }) => {
   const page = await context.newPage(); await page.goto('/');
   const buffer = Buffer.from(await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 100; c.height = 150; c.getContext('2d')!.fillRect(20, 20, 60, 100); return c.toDataURL().split(',')[1]; }), 'base64');
   await page.getByLabel('Player photo', { exact: true }).setInputFiles({ name: 'mobile.png', mimeType: 'image/png', buffer });
+  await page.getByRole('button', { name: 'Keep Original', exact: true }).click();
   const crop = page.getByLabel('Drag to position player photo'); await expect(crop).toBeVisible();
   const before = await crop.evaluate((c: HTMLCanvasElement) => c.toDataURL());
   const box = (await crop.boundingBox())!; const cdp = await context.newCDPSession(page);

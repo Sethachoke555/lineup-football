@@ -13,9 +13,19 @@ function numeric(value: unknown, label: string, min: number, max: number) {
 function choice(value: unknown, choices: readonly string[], label: string) {
   if (typeof value !== 'string' || !choices.includes(value)) throw new Error(`Invalid project: ${label}.`);
 }
-function image(value: unknown, label: string) {
-  string(value, label, 17_000_000);
+function image(value: unknown, label: string, max = 17_000_000) {
+  string(value, label, max);
   if (value !== '' && !/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+=*$/.test(value as string)) throw new Error(`Invalid project: ${label} must be an embedded PNG, JPG or WEBP.`);
+}
+function photoVersions(value: unknown, active: unknown) {
+  if (value === undefined) return;
+  const v = record(value, 'photo versions');
+  image(v.originalSrc, 'original photo');
+  image(v.cutoutSrc, 'cutout photo', 180_000_000);
+  if (v.cutoutSrc && !(v.cutoutSrc as string).startsWith('data:image/png;base64,')) throw new Error('Cutout must be a transparent-capable PNG.');
+  choice(v.activeVersion, ['original', 'cutout'], 'active photo version');
+  const selected = v.activeVersion === 'cutout' ? v.cutoutSrc : v.originalSrc;
+  if (!selected || (active !== undefined && selected !== active)) throw new Error('Active photo does not match its saved version.');
 }
 export function validateProject(value: unknown): Project {
   const p = record(value, 'project data');
@@ -30,7 +40,7 @@ export function validateProject(value: unknown): Project {
     if (s.design !== undefined) { const d = record(s.design, 'starting design'); numeric(d.variation, 'design variation', 0, 5); numeric(d.fontScale, 'font scale', .7, 1.3); numeric(d.spacing, 'spacing', .8, 1.2); }
     const colors = record(s.colors, 'starting lineup colors'); for (const key of ['primary', 'secondary', 'accent', 'text']) if (typeof colors[key] !== 'string' || !/^#[0-9a-f]{6}$/i.test(colors[key] as string)) throw new Error('Invalid starting lineup color.');
     const bg = record(s.background, 'starting lineup background'); choice(bg.kind, ['pitch', 'stadium', 'gradient', 'custom'], 'starting lineup background'); image(bg.image, 'starting lineup background image'); numeric(bg.brightness, 'starting lineup brightness', 20, 160); numeric(bg.blur, 'starting lineup blur', 0, 20); numeric(bg.overlay, 'starting lineup overlay', 0, 90);
-    const hero = record(s.hero, 'starting lineup hero'); image(hero.src, 'hero image'); string(hero.playerId ?? '', 'hero player ID'); numeric(hero.x, 'hero X', -50, 50); numeric(hero.y, 'hero Y', -50, 50); numeric(hero.zoom, 'hero zoom', .5, 2); image(s.competitionLogo, 'competition logo');
+    const hero = record(s.hero, 'starting lineup hero'); image(hero.src, 'hero image', 180_000_000); photoVersions(hero.playerPhoto, hero.playerId ? undefined : hero.src); string(hero.playerId ?? '', 'hero player ID'); numeric(hero.x, 'hero X', -50, 50); numeric(hero.y, 'hero Y', -50, 50); numeric(hero.zoom, 'hero zoom', .5, 2); image(s.competitionLogo, 'competition logo');
     if (!Array.isArray(s.starters) || s.starters.length !== 11) throw new Error('Starting lineup must contain exactly 11 players.');
     const starterIds = new Set<string>(); let captains = 0; for (const value of s.starters) { const entry = record(value, 'starting player'); string(entry.playerId, 'starting player ID'); if (starterIds.has(entry.playerId as string)) throw new Error('Starting players must be unique.'); starterIds.add(entry.playerId as string); if (entry.captain) captains++; if (entry.displayName !== undefined) string(entry.displayName, 'starting display name', 80); if (typeof entry.captain !== 'boolean') throw new Error('Invalid captain flag.'); } if (captains > 1) throw new Error('Starting lineup can have one captain.');
     if (!Array.isArray(s.substitutes) || s.substitutes.length > 12 || new Set(s.substitutes).size !== s.substitutes.length) throw new Error('Starting substitutes are invalid.'); s.substitutes.forEach((id) => string(id, 'substitute ID'));
@@ -83,7 +93,7 @@ export function validateProject(value: unknown): Project {
     if (!/^\d{0,3}$/.test(player.number as string)) throw new Error('Invalid shirt number.');
     choice(player.position, ['GK','CB','LB','RB','LWB','RWB','DM','CM','AM','LM','RM','LW','RW','ST','CF'], 'player position');
     choice(player.status, ['starting', 'substitute'], 'player status'); if (player.status === 'starting') starters++; else subs++;
-    numeric(player.x, 'player X', 0, 100); numeric(player.y, 'player Y', 0, 100); image(player.photo, 'player photo');
+    numeric(player.x, 'player X', 0, 100); numeric(player.y, 'player Y', 0, 100); image(player.photo, 'player photo', 180_000_000); photoVersions(player.playerPhoto, player.photo);
     if (player.photoEffect !== undefined) {
       const e = record(player.photoEffect, 'photo effect');
       if (e.version !== 1) throw new Error('Unsupported photo effect version.');
