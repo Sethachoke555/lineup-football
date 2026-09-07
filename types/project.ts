@@ -52,7 +52,7 @@ export interface Project {
   colors: Colors; background: Background;
   text: { size: number; uppercase: boolean; useNickname: boolean };
 }
-export type StartingLineupTemplate = 'broadcast-list' | 'dark-team-sheet' | 'club-poster' | 'minimal-lineup';
+export type StartingLineupTemplate = 'broadcast-list' | 'dark-team-sheet' | 'club-poster' | 'minimal-lineup' | 'hero-xi' | 'formation-pro' | 'player-cards' | 'clean-xi' | 'matchday-xi' | 'stadium-xi';
 export type StartingLineupNameStyle = 'full' | 'surname' | 'nickname';
 export interface StartingLineupPlayer {
   playerId: string;
@@ -77,6 +77,7 @@ export interface StartingLineupMatchInfo {
 }
 export interface StartingLineupSponsor { id: string; src: string; label: string }
 export interface StartingLineup {
+  design?: { variation: number; fontScale: number; spacing: number };
   title: 'STARTING XI' | 'LINE-UP' | 'TEAM SHEET';
   starters: StartingLineupPlayer[];
   substitutes: string[];

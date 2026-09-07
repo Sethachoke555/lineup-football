@@ -1,13 +1,32 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('starting lineup six templates preserve selection through auto design and shuffle', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'STARTING LINEUP', exact: true }).click();
+  await page.locator('.starting-row .player-list-name').first().click();
+  const names = await page.locator('.left-sidebar .player-list-name').allTextContents();
+  const renders = new Set<string>();
+  for (const template of ['hero-xi', 'formation-pro', 'player-cards', 'clean-xi', 'matchday-xi', 'stadium-xi']) {
+    await page.getByLabel('Template', { exact: true }).selectOption(template);
+    await page.getByRole('button', { name: 'Auto Design', exact: true }).click();
+    await page.getByRole('button', { name: 'Shuffle Design', exact: true }).click();
+    await expect(page.locator('.left-sidebar .player-list-name')).toHaveText(names);
+    await expect(page.getByLabel('Captain', { exact: true })).toHaveCount(1);
+    const pending = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
+    renders.add((await readFile((await (await pending).path())!)).toString('base64'));
+  }
+  expect(renders.size).toBe(6);
+});
+
 test('starting lineup reuses squad, reorders, edits hero and exports all sizes', async ({ page }) => {
   await page.goto('/'); await page.getByRole('button', { name: 'LINEUP', exact: true }).click(); await page.getByRole('button', { name: 'Squad', exact: true }).click(); await page.getByRole('button', { name: 'Add substitute', exact: true }).click(); await page.getByRole('button', { name: 'STARTING LINEUP', exact: true }).click();
   await expect(page.getByRole('button', { name: 'STARTING LINEUP', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.left-sidebar .starting-row')).toHaveCount(11);
   await page.locator('.starting-row .player-list-name').first().click();
   await page.getByRole('button', { name: /Move KITTIPONG down/ }).click();
-  await page.getByLabel('Template').selectOption('club-poster'); await page.getByLabel('Name style').selectOption('surname');
+  await page.getByLabel('Advanced editing').check(); await page.getByLabel('Template').selectOption('matchday-xi'); await page.getByLabel('Name style').selectOption('surname');
   await page.getByLabel('Hero from squad').selectOption({ index: 1 }); await page.getByLabel('Hero zoom').fill('1.3'); await page.getByLabel('Hero move X').fill('20'); await page.getByLabel('Hero move Y').fill('-10');
   await page.getByLabel('Show match info').uncheck(); await page.getByLabel('Show match info').check();
   await expect(page.locator('.starting-controls .starting-row')).toHaveCount(1);
