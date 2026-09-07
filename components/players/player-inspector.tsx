@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { SlidersHorizontal, UserRound } from 'lucide-react';
 import type { Player, Project } from '@/types/project';
-import { Field, Range, Select } from '@/components/sidebar/fields';
+import { Field, Range, Select } from '@/components/ui';
 
 interface InspectorProps {
   player?: Player;

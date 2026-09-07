@@ -1,6 +1,6 @@
 import { SIZES, type Project } from '@/types/project';
 import { drawBackground } from './background-renderer';
-import { drawContained, loadImage } from '@/utils/images';
+import { drawContained, loadImage } from '@/lib/images';
 
 export async function renderMatchResult(canvas: HTMLCanvasElement, project: Project) {
   const result = project.matchResult;

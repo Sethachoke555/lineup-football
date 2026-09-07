@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { Field, Select } from '@/components/sidebar/fields';
+import { Field, Select } from '@/components/ui';
 import { ImageUpload } from '@/components/players/image-upload';
 import { BackgroundSettings } from '@/components/sidebar/background-settings';
 import { TemplateSettings } from '@/components/templates/template-settings';

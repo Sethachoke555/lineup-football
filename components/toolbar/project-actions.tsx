@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Download, FolderOpen, Save } from 'lucide-react';
 import type { Project } from '@/types/project';
-import { projectRepository } from '@/lib/storage';
-import { exportGraphic } from '@/utils/export';
+import { projectRepository } from '@/services/project-storage';
+import { exportGraphic } from '@/lib/export';
 import { ProjectLibrary } from '@/components/editor/project-library';
 export function ProjectActions({ project, onLoad, notify }: { project: Project; onLoad: (project: Project) => void; notify: (message: string) => void }) {
   const [library, setLibrary] = useState(false); const [busy, setBusy] = useState(''); const [savedAt, setSavedAt] = useState('');

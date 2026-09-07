@@ -1,6 +1,6 @@
 import type { PlayerPhotoEffect } from '@/types/project';
 import { EFFECT_PRESETS, photoEffectPreset } from '@/lib/photo-effects';
-import { Field, Range, Select } from '@/components/sidebar/fields';
+import { Field, Range, Select } from '@/components/ui';
 
 export function PhotoEffectControls({ effect, onChange, transparent, parallax, onParallax }: {
   effect: PlayerPhotoEffect; onChange: (value: PlayerPhotoEffect) => void; transparent: boolean; parallax: boolean; onParallax: (value: boolean) => void;
