@@ -5,7 +5,7 @@ import { STARTING_LINEUP_TEMPLATES } from '@/features/starting-lineup/utils/desi
 export function createStartingLineup(project: Project): StartingLineup {
   const starters = project.players.filter((p) => p.status === 'starting').slice(0, 11).map<StartingLineupPlayer>((p) => ({ playerId: p.id, captain: false }));
   return {
-    title: 'STARTING XI', starters, substitutes: project.players.filter((p) => p.status === 'substitute').map((p) => p.id),
+    title: 'STARTING XI', textScale: 1.25, backgroundOpacity: 100, starters, substitutes: project.players.filter((p) => p.status === 'substitute').map((p) => p.id),
     hero: { src: '', playerId: project.players.find((p) => p.status === 'starting' && p.photo)?.id, x: 0, y: 0, zoom: 1 }, competitionLogo: '', matchInfo: { enabled: true, opponent: project.team.opponent, opponentLogo: project.team.opponentLogo, date: project.team.date, time: project.team.time, venue: project.team.venue, round: '' },
     sponsors: [], showSponsors: false, sponsorPosition: 'bottom', substituteLayout: 'wrapped', nameStyle: 'full', template: 'hero-xi', colors: { ...project.colors }, background: { ...project.background }, size: project.size,
   };

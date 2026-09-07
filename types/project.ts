@@ -85,6 +85,9 @@ export interface StartingLineupMatchInfo {
 }
 export interface StartingLineupSponsor { id: string; src: string; label: string }
 export interface StartingLineup {
+  backgroundPreset?: import('@/features/starting-lineup/utils/backgrounds').StartingBackgroundId;
+  backgroundOpacity?: number;
+  textScale?: number;
   design?: { variation: number; fontScale: number; spacing: number };
   title: 'STARTING XI' | 'LINE-UP' | 'TEAM SHEET';
   starters: StartingLineupPlayer[];
