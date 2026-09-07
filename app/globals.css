@@ -189,3 +189,12 @@ button { transition: background .15s, border-color .15s; }
 .starting-lineup-workspace .graphic-canvas { touch-action: none; cursor: grab; }
 .starting-lineup-workspace .graphic-canvas:active { cursor: grabbing; }
 @media (min-width: 601px) { .photo-effects { max-height: 330px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; } .photo-dialog .photo-card-preview > canvas { max-height: 250px; } }
+
+
+/* Starting Lineup workflow controls */
+.starting-lineup-workspace .starting-row { display: flex; align-items: center; gap: 5px; padding: 7px 0; flex-wrap: wrap; }
+.starting-lineup-workspace .starting-row select { width: 100%; min-width: 0; background: var(--panel, #151c29); color: inherit; border: 1px solid #394354; border-radius: 6px; padding: 7px; }
+.starting-lineup-workspace .player-list-name { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+.starting-controls { padding: 18px; overflow-y: auto; }
+.starting-controls .photo-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.starting-controls .checkbox-field { margin: 14px 0; }

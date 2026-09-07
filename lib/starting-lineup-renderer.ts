@@ -1,3 +1,4 @@
+import { renderDesignedLineup } from '@/features/starting-lineup/utils/render-design';
 import type { Player, Project, StartingLineup } from '@/types/project';
 import { SIZES } from '@/types/project';
 import { drawBackground } from './background-renderer';
@@ -7,6 +8,7 @@ function fitText(ctx: CanvasRenderingContext2D, value: string, x: number, y: num
 function nameFor(player: Player, data: StartingLineup, entry: { playerId: string; displayName?: string }) { if (entry.displayName) return entry.displayName; if (data.nameStyle === 'nickname' && player.nickname) return player.nickname; if (data.nameStyle === 'surname') { const words = player.name.trim().split(/\s+/); return words.length > 1 ? `${words.slice(0, -1).join(' ')} ${words.at(-1)!.toUpperCase()}` : player.name; } return player.name; }
 export async function renderStartingLineup(canvas: HTMLCanvasElement, project: Project) {
   const data = project.startingLineup; if (!data) throw new Error('Starting lineup data is missing.');
+  if (['hero-xi', 'formation-pro', 'player-cards', 'clean-xi', 'matchday-xi', 'stadium-xi'].includes(data.template)) return renderDesignedLineup(canvas, project, data);
   const players = new Map(project.players.map((p) => [p.id, p])); const hero = data.hero.src || (data.hero.playerId ? players.get(data.hero.playerId)?.photo : '') || '';
   const sources = [...new Set([hero, project.team.logo, data.competitionLogo, data.matchInfo.opponentLogo, ...data.sponsors.map((s) => s.src), data.background.kind === 'custom' ? data.background.image : ''].filter(Boolean))];
   const images = new Map(await Promise.all(sources.map(async (src) => [src, await loadImage(src)] as const))); const [w, h] = SIZES[data.size]; canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas is unavailable.');

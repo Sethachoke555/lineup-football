@@ -3,6 +3,29 @@ import assert from 'node:assert/strict';
 import { createProject } from '../lib/defaults';
 import { createStartingLineup } from '../lib/starting-lineup';
 import { validateProject } from '../lib/validation';
+import { autoDesign, shuffleDesign, STARTING_LINEUP_TEMPLATES } from '../features/starting-lineup/utils/design';
+
+test('all six designs round-trip without changing club or selected players', () => {
+  const project = createProject();
+  const original = createStartingLineup(project);
+  original.starters[2].captain = true;
+  original.starters[0].displayName = 'สมชาย VERY LONG FOOTBALL PLAYER NAME';
+  for (const template of STARTING_LINEUP_TEMPLATES) {
+    for (const size of ['portrait', 'square', 'story', 'landscape'] as const) {
+      const data = { ...original, template: template.id, size };
+      let designed = { ...data, ...autoDesign(project, data) };
+      for (let i = 0; i < 6; i++) {
+        designed = { ...designed, ...shuffleDesign(designed) };
+        assert.deepEqual(designed.starters, original.starters);
+        assert.deepEqual(designed.substitutes, original.substitutes);
+        const saved = validateProject(JSON.parse(JSON.stringify({ ...project, startingLineup: designed })));
+        assert.deepEqual(saved.team, project.team);
+        assert.deepEqual(saved.players, project.players);
+        assert.deepEqual(saved.startingLineup, JSON.parse(JSON.stringify(designed)));
+      }
+    }
+  }
+});
 
 test('starting lineup initializes from the squad and survives save/load', () => {
   const project = createProject(); project.mode = 'starting-lineup'; project.startingLineup = createStartingLineup(project);
