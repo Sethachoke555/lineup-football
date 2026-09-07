@@ -1,7 +1,7 @@
 'use client';
 import { useId, useState } from 'react';
 import { Upload, X } from 'lucide-react';
-import { readImage } from '@/utils/images';
+import { readImage } from '@/lib/images';
 export function ImageUpload({ label, value, onChange, onError }: { label: string; value: string; onChange: (value: string) => void; onError: (message: string) => void }) {
   const id = useId(); const [busy, setBusy] = useState(false);
   return <div className="upload-field"><span className="upload-label">{label}</span><div className={`upload-area ${value ? 'has-image' : ''}`}>

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowDown, ArrowUp, Crown, GripVertical, Trash2 } from 'lucide-react';
-import { Field, Range, Select } from '@/components/sidebar/fields';
+import { Field, Range, Select } from '@/components/ui';
 import { ImageUpload } from '@/components/players/image-upload';
 import { SIZES, type Project, type StartingLineup, type StartingLineupPlayer } from '@/types/project';
 import { STARTING_LINEUP_TEMPLATES, ensureStartingLineup, startingTemplate } from '@/lib/starting-lineup';

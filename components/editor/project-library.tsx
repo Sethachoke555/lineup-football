@@ -2,9 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Copy, Download, FolderOpen, Trash2, Upload, X } from 'lucide-react';
 import type { Project } from '@/types/project';
-import { projectRepository } from '@/lib/storage';
+import { projectRepository } from '@/services/project-storage';
 import { validateProject } from '@/lib/validation';
-import { backupProject } from '@/utils/export';
+import { backupProject } from '@/lib/export';
 export function ProjectLibrary({ current, onLoad, onClose, onDelete, notify }: { current: Project; onLoad: (project: Project, saved: boolean) => void; onClose: () => void; onDelete: (id: string) => void; notify: (message: string) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [projects, setProjects] = useState<Project[]>([]); const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false); const [error, setError] = useState('');

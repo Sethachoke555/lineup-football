@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { Player, Project, PlayerPhotoSettings } from '@/types/project';
 import { DEFAULT_PHOTO_SETTINGS, settingsForPlayer } from '@/lib/photo-crop';
-import { loadImage } from '@/utils/images';
+import { loadImage } from '@/lib/images';
 import { ImageUpload } from './image-upload';
 import { PhotoCropDialog } from './photo-crop-dialog';
 

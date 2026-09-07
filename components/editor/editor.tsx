@@ -1,25 +1,16 @@
 'use client';
 import { useState } from 'react';
 import { Settings2, Users, Palette, LayoutGrid, ImageIcon, X } from 'lucide-react';
-import { MatchResultEditor } from './match-result-editor';
-import { createMatchResult } from '@/lib/match-result';
-import { StartingLineupEditor } from '@/components/starting-lineup/starting-lineup-editor';
-import { ensureStartingLineup } from '@/lib/starting-lineup';
-import { useProject } from './use-project';
-import { Toolbar } from '@/components/toolbar/toolbar';
-import { ProjectActions } from '@/components/toolbar/project-actions';
+import { MatchResultEditor, createMatchResult } from '@/features/match-result';
+import { StartingLineupEditor, ensureStartingLineup } from '@/features/starting-lineup';
+import { useProject } from '@/hooks/use-project';
+import { Toolbar, ProjectActions, BackgroundSettings, TemplateSettings } from '@/components/shared';
 import { TeamSettings } from '@/components/sidebar/team-settings';
-import { FormationSettings } from '@/components/sidebar/formation-settings';
-import { TemplateSettings } from '@/components/templates/template-settings';
-import { BackgroundSettings } from '@/components/sidebar/background-settings';
+import { FormationSettings, PitchPreview, PlayerInspector, PositionEditor, SquadList } from '@/features/lineup';
 import { applyTemplate } from '@/lib/templates';
 import { createProject, newPlayer } from '@/lib/defaults';
 import { arrangePlayers, placeStarter } from '@/lib/formations';
-import { SquadList } from '@/components/players/squad-list';
-import { PlayerInspector } from '@/components/players/player-inspector';
 import { PhotoEditor } from '@/components/players/photo-editor';
-import { PositionEditor } from '@/components/players/position-editor';
-import { PitchPreview } from '@/components/pitch/pitch-preview';
 import { SIZES, type Player } from '@/types/project';
 
 export function Editor() {

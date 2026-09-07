@@ -1,7 +1,7 @@
 import type { Player, Project, StartingLineup } from '@/types/project';
 import { SIZES } from '@/types/project';
 import { drawBackground } from './background-renderer';
-import { drawContained, loadImage } from '@/utils/images';
+import { drawContained, loadImage } from '@/lib/images';
 
 function fitText(ctx: CanvasRenderingContext2D, value: string, x: number, y: number, size: number, max: number, color: string, align: CanvasTextAlign = 'left', weight = 700) { ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'middle'; ctx.font = `${weight} ${size}px Arial, "Noto Sans Thai", Tahoma, sans-serif`; ctx.fillText(value, x, y, max); }
 function nameFor(player: Player, data: StartingLineup, entry: { playerId: string; displayName?: string }) { if (entry.displayName) return entry.displayName; if (data.nameStyle === 'nickname' && player.nickname) return player.nickname; if (data.nameStyle === 'surname') { const words = player.name.trim().split(/\s+/); return words.length > 1 ? `${words.slice(0, -1).join(' ')} ${words.at(-1)!.toUpperCase()}` : player.name; } return player.name; }

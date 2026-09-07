@@ -1,5 +1,5 @@
 import { type Project, type Player } from '@/types/project';
-import { drawContained, loadImage } from '@/utils/images';
+import { drawContained, loadImage } from '@/lib/images';
 import { drawBackground } from './background-renderer';
 import { graphicLayout, playerPlacement } from './pitch-geometry';
 import { drawCroppedPhoto, playerPhotoFrame, settingsForPlayer } from './photo-crop';
