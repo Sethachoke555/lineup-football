@@ -1,4 +1,5 @@
 import { FORMATIONS, SIZES, type Project } from '@/types/project';
+import { startingLineupBackgrounds } from '@/features/starting-lineup/utils/backgrounds';
 type RecordValue = Record<string, unknown>;
 function record(value: unknown, label: string): RecordValue {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`Invalid project: ${label}.`);
@@ -35,6 +36,9 @@ export function validateProject(value: unknown): Project {
   if (p.mode === 'starting-lineup' && !p.startingLineup) throw new Error('Missing starting lineup.');
   if (p.startingLineup !== undefined) {
     const s = record(p.startingLineup, 'starting lineup');
+    if (s.textScale !== undefined) numeric(s.textScale, 'starting lineup text size', .8, 1.5);
+    if (s.backgroundOpacity !== undefined) numeric(s.backgroundOpacity, 'starting background opacity', 0, 100);
+    if (s.backgroundPreset !== undefined) choice(s.backgroundPreset, startingLineupBackgrounds.map(p => p.id), 'starting background preset');
     choice(s.title, ['STARTING XI', 'LINE-UP', 'TEAM SHEET'], 'starting lineup title'); choice(s.template, ['broadcast-list', 'dark-team-sheet', 'club-poster', 'minimal-lineup', 'hero-xi', 'formation-pro', 'player-cards', 'clean-xi', 'matchday-xi', 'stadium-xi'], 'starting lineup template'); choice(s.size, Object.keys(SIZES), 'starting lineup size'); choice(s.nameStyle, ['full', 'surname', 'nickname'], 'starting lineup name style'); choice(s.substituteLayout, ['wrapped', 'compact'], 'substitute layout'); choice(s.sponsorPosition, ['top', 'bottom'], 'sponsor position');
     if (typeof s.showSponsors !== 'boolean') throw new Error('Invalid sponsor visibility.');
     if (s.design !== undefined) { const d = record(s.design, 'starting design'); numeric(d.variation, 'design variation', 0, 5); numeric(d.fontScale, 'font scale', .7, 1.3); numeric(d.spacing, 'spacing', .8, 1.2); }
