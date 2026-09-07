@@ -5,6 +5,7 @@ import { graphicLayout, playerPlacement } from './pitch-geometry';
 import { drawCroppedPhoto, playerPhotoFrame, settingsForPlayer } from './photo-crop';
 import { drawPhotoEffect, drawDepthCard } from './photo-effect-renderer';
 import { renderMatchResult } from './result-renderer';
+import { renderStartingLineup } from './starting-lineup-renderer';
 import { drawPitch } from './pitch-renderer';
 export { graphicLayout } from './pitch-geometry';
 function text(ctx: CanvasRenderingContext2D, value: string, x: number, y: number, size: number, color: string, maxWidth: number, align: CanvasTextAlign = 'left', weight = 700) {
@@ -60,6 +61,7 @@ export function drawPlayerCard(ctx: CanvasRenderingContext2D, player: Player, pr
 }
 export async function renderGraphic(canvas: HTMLCanvasElement, project: Project) {
   if (project.mode === 'result') return renderMatchResult(canvas, project);
+  if (project.mode === 'starting-lineup') return renderStartingLineup(canvas, project);
   const sources = [...new Set([project.team.logo, project.team.opponentLogo, project.background.kind === 'custom' ? project.background.image : '', ...project.players.map((p) => p.photo)].filter(Boolean))];
   const loaded = await Promise.all(sources.map(async (src) => [src, await loadImage(src)] as const));
   const images = new Map(loaded);

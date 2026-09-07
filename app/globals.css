@@ -186,4 +186,6 @@ button { transition: background .15s, border-color .15s; }
 .photo-effects summary { cursor: pointer; font-size: 12px; margin-bottom: 12px; }
 .photo-dialog:has(.photo-effects) { width: min(1020px, 96vw); }
 .photo-dialog .photo-card-preview > canvas { max-height: 360px; width: auto; max-width: 100%; display: block; margin: 12px auto; }
+.starting-lineup-workspace .graphic-canvas { touch-action: none; cursor: grab; }
+.starting-lineup-workspace .graphic-canvas:active { cursor: grabbing; }
 @media (min-width: 601px) { .photo-effects { max-height: 330px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; } .photo-dialog .photo-card-preview > canvas { max-height: 250px; } }

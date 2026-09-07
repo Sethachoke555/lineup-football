@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Settings2, Users, Palette, LayoutGrid, ImageIcon, X } from 'lucide-react';
 import { MatchResultEditor } from './match-result-editor';
 import { createMatchResult } from '@/lib/match-result';
+import { StartingLineupEditor } from '@/components/starting-lineup/starting-lineup-editor';
+import { ensureStartingLineup } from '@/lib/starting-lineup';
 import { useProject } from './use-project';
 import { Toolbar } from '@/components/toolbar/toolbar';
 import { ProjectActions } from '@/components/toolbar/project-actions';
@@ -50,8 +52,8 @@ export function Editor() {
 
   return <div className="studio">
     <Toolbar name={project.name} onName={(name) => edit((p) => ({ ...p, name }))} {...{ undo, redo, canUndo, canRedo }} reset={() => { if (confirm('Reset this project? You can undo this action.')) replace(createProject()); }}><ProjectActions project={project} onLoad={(p) => { replace(p); setSelectedId(null); }} notify={setMessage} /></Toolbar>
-    <nav className="mode-tabs" aria-label="Studio mode">{(['lineup', 'result'] as const).map((mode) => <button key={mode} aria-pressed={(project.mode ?? 'lineup') === mode} onClick={() => edit((p) => ({ ...p, mode, ...(mode === 'result' && !p.matchResult ? { matchResult: createMatchResult(p) } : {}) }))}>{mode === 'lineup' ? 'LINEUP' : 'MATCH RESULT'}</button>)}</nav>
-    {project.mode === 'result' && project.matchResult ? <MatchResultEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, matchResult: { ...p.matchResult!, ...patch } }))} /> : <div className="workspace">
+    <nav className="mode-tabs" aria-label="Studio mode">{(['lineup', 'starting-lineup', 'result'] as const).map((mode) => <button key={mode} aria-pressed={(project.mode ?? 'lineup') === mode} onClick={() => edit((p) => ({ ...p, mode, ...(mode === 'result' && !p.matchResult ? { matchResult: createMatchResult(p) } : {}), ...(mode === 'starting-lineup' ? { startingLineup: ensureStartingLineup(p) } : {}) }))}>{mode === 'lineup' ? 'LINEUP' : mode === 'starting-lineup' ? 'STARTING LINEUP' : 'MATCH RESULT'}</button>)}</nav>
+    {project.mode === 'result' && project.matchResult ? <MatchResultEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, matchResult: { ...p.matchResult!, ...patch } }))} /> : project.mode === 'starting-lineup' && project.startingLineup ? <StartingLineupEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, startingLineup: { ...p.startingLineup!, ...patch } }))} /> : <div className="workspace">
       <aside className="left-sidebar">
         <nav className="side-tabs" aria-label="Editor panels">
           {[

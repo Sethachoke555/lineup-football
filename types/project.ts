@@ -44,12 +44,54 @@ export interface Team {
 export interface Colors { primary: string; secondary: string; accent: string; text: string; cardBackground?: string; cardText?: string }
 export interface Background { kind: 'pitch' | 'stadium' | 'gradient' | 'custom'; image: string; brightness: number; blur: number; overlay: number }
 export interface Project {
-  mode?: 'lineup' | 'result';
+  mode?: 'lineup' | 'starting-lineup' | 'result';
   matchResult?: MatchResult;
+  startingLineup?: StartingLineup;
   version: 1; id: string; name: string; updatedAt: string;
   team: Team; players: Player[]; formation: Formation; size: CanvasSize; template: TemplateId;
   colors: Colors; background: Background;
   text: { size: number; uppercase: boolean; useNickname: boolean };
+}
+export type StartingLineupTemplate = 'broadcast-list' | 'dark-team-sheet' | 'club-poster' | 'minimal-lineup';
+export type StartingLineupNameStyle = 'full' | 'surname' | 'nickname';
+export interface StartingLineupPlayer {
+  playerId: string;
+  captain: boolean;
+  displayName?: string;
+}
+export interface StartingLineupHero {
+  src: string;
+  playerId?: string;
+  x: number;
+  y: number;
+  zoom: number;
+}
+export interface StartingLineupMatchInfo {
+  enabled: boolean;
+  opponent: string;
+  opponentLogo: string;
+  date: string;
+  time: string;
+  venue: string;
+  round: string;
+}
+export interface StartingLineupSponsor { id: string; src: string; label: string }
+export interface StartingLineup {
+  title: 'STARTING XI' | 'LINE-UP' | 'TEAM SHEET';
+  starters: StartingLineupPlayer[];
+  substitutes: string[];
+  hero: StartingLineupHero;
+  matchInfo: StartingLineupMatchInfo;
+  competitionLogo: string;
+  sponsors: StartingLineupSponsor[];
+  showSponsors: boolean;
+  sponsorPosition: 'top' | 'bottom';
+  substituteLayout: 'wrapped' | 'compact';
+  nameStyle: StartingLineupNameStyle;
+  template: StartingLineupTemplate;
+  colors: Colors;
+  background: Background;
+  size: CanvasSize;
 }
 export interface MatchResult {
   home: { name: string; logo: string; score: number };
