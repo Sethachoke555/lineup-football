@@ -1,0 +1,9 @@
+{
+  "name": "kickoff-player-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite --host 127.0.0.1", "build": "vite build", "test": "playwright test" },
+  "dependencies": { "@imgly/background-removal": "^1.7.0", "vite": "^7.0.0" },
+  "devDependencies": { "@playwright/test": "^1.55.0" }
+}
