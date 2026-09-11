@@ -169,7 +169,7 @@ button { transition: background .15s, border-color .15s; }
 .photo-dialog footer { justify-content: flex-end; border-top: 1px solid #383e4c; margin-top: 20px; padding-top: 16px; }
 .photo-card-preview canvas { width: 100%; height: auto; border-radius: 10px; margin: 12px 0; }
 @media (max-width: 600px) { .photo-dialog { padding: 16px; } .photo-editor-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; } .crop-stage { max-width: 270px; } .photo-card-preview canvas { max-width: 150px; display: block; margin: 10px auto; } }
-.mode-tabs { display: flex; flex-shrink: 0; gap: 8px; padding: 10px 24px; border-bottom: 1px solid #2b2c34; background: #17181e; }
+.mode-tabs { display: flex; flex-wrap: wrap; flex-shrink: 0; gap: 8px; padding: 10px 24px; border-bottom: 1px solid #2b2c34; background: #17181e; }
 .mode-tabs button { padding: 10px 24px; border: 1px solid transparent; border-radius: 7px; color: #959aa8; font-size: 12px; font-weight: 800; letter-spacing: 1px; background: transparent; }
 .mode-tabs button[aria-pressed="true"] { background: #293023; color: #d5ff87; border-color: #52613d; }
 .result-team { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
@@ -205,3 +205,6 @@ button { transition: background .15s, border-color .15s; }
 .removal-comparison [role="img"] { height: min(50vh, 480px); background-size: contain; background-repeat: no-repeat; background-position: center; }
 .removal-dialog footer { flex-wrap: wrap; gap: 8px; }
 @media (max-width: 600px) { .removal-comparison { gap: 8px; } .removal-comparison [role="img"] { height: 32vh; } }
+
+.intro-studio{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}.intro-studio iframe{flex:1;width:100%;min-height:0;border:0;display:block;height:calc(100dvh - 220px)}
+@media(max-width:1199px){.intro-studio{min-height:700px}}

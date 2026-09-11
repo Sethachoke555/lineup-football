@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { IntroStudio } from '@/features/intro-studio/IntroStudio';
 import { Settings2, Users, Palette, LayoutGrid, ImageIcon, X } from 'lucide-react';
 import { MatchResultEditor, createMatchResult } from '@/features/match-result';
 import { StartingLineupEditor, ensureStartingLineup } from '@/features/starting-lineup';
@@ -15,6 +16,8 @@ import { SIZES, type Player } from '@/types/project';
 
 export function Editor() {
   const { project, edit, undo, redo, canUndo, canRedo, replace } = useProject();
+  const [introMode,setIntroMode]=useState<'player'|'team'|null>(null);
+  const [introBusy,setIntroBusy]=useState(false);
   const [tab, setTab] = useState('players');
   const [selectedId, setSelectedId] = useState<string | null>(() => project.players[8]?.id ?? null);
   const [message, setMessage] = useState('');
@@ -42,9 +45,9 @@ export function Editor() {
   });
 
   return <div className="studio">
-    <Toolbar name={project.name} onName={(name) => edit((p) => ({ ...p, name }))} {...{ undo, redo, canUndo, canRedo }} reset={() => { if (confirm('Reset this project? You can undo this action.')) replace(createProject()); }}><ProjectActions project={project} onLoad={(p) => { replace(p); setSelectedId(null); }} notify={setMessage} /></Toolbar>
-    <nav className="mode-tabs" aria-label="Studio mode">{(['lineup', 'starting-lineup', 'result'] as const).map((mode) => <button key={mode} aria-pressed={(project.mode ?? 'lineup') === mode} onClick={() => edit((p) => ({ ...p, mode, ...(mode === 'result' && !p.matchResult ? { matchResult: createMatchResult(p) } : {}), ...(mode === 'starting-lineup' ? { startingLineup: ensureStartingLineup(p) } : {}) }))}>{mode === 'lineup' ? 'LINEUP' : mode === 'starting-lineup' ? 'STARTING LINEUP' : 'MATCH RESULT'}</button>)}</nav>
-    {project.mode === 'result' && project.matchResult ? <MatchResultEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, matchResult: { ...p.matchResult!, ...patch } }))} /> : project.mode === 'starting-lineup' && project.startingLineup ? <StartingLineupEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, startingLineup: { ...p.startingLineup!, ...patch } }))} /> : <div className="workspace">
+    <div inert={introBusy} style={{flexShrink:0}}><Toolbar name={project.name} onName={(name) => edit((p) => ({ ...p, name }))} {...{ undo, redo, canUndo, canRedo }} reset={() => { if (confirm('Reset this project? You can undo this action.')) replace(createProject()); }}><ProjectActions project={project} onLoad={(p) => { replace(p); setSelectedId(null); }} intro={!!introMode} notify={setMessage} /></Toolbar>
+    <nav className="mode-tabs" aria-label="Studio mode">{(['lineup', 'starting-lineup', 'result'] as const).map((mode) => <button key={mode} aria-pressed={!introMode && (project.mode ?? 'lineup') === mode} onClick={() => {setIntroMode(null);edit((p) => ({ ...p, mode, ...(mode === 'result' && !p.matchResult ? { matchResult: createMatchResult(p) } : {}), ...(mode === 'starting-lineup' ? { startingLineup: ensureStartingLineup(p) } : {}) }));}}>{mode === 'lineup' ? 'LINEUP' : mode === 'starting-lineup' ? 'STARTING LINEUP' : 'MATCH RESULT'}</button>)}<button aria-pressed={introMode==='player'} onClick={()=>setIntroMode('player')}>PLAYER INTRO</button><button aria-pressed={introMode==='team'} onClick={()=>setIntroMode('team')}>TEAM INTRO</button></nav></div>
+    {introMode ? <IntroStudio key={project.id+introMode} project={project} kind={introMode} selectedId={selectedId} onBusy={setIntroBusy} onError={setMessage} onSave={(kind,snapshot)=>edit(p=>p.introStudio?.[kind]===snapshot?p:({...p,introStudio:{...p.introStudio,[kind]:snapshot}}))} /> : project.mode === 'result' && project.matchResult ? <MatchResultEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, matchResult: { ...p.matchResult!, ...patch } }))} /> : project.mode === 'starting-lineup' && project.startingLineup ? <StartingLineupEditor project={project} onError={setMessage} onChange={(patch) => edit((p) => ({ ...p, startingLineup: { ...p.startingLineup!, ...patch } }))} /> : <div className="workspace">
       <aside className="left-sidebar">
         <nav className="side-tabs" aria-label="Editor panels">
           {[

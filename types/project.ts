@@ -45,6 +45,7 @@ export interface Team {
 export interface Colors { primary: string; secondary: string; accent: string; text: string; cardBackground?: string; cardText?: string }
 export interface Background { kind: 'pitch' | 'stadium' | 'gradient' | 'custom'; image: string; brightness: number; blur: number; overlay: number }
 export interface Project {
+  introStudio?: { player?: string; team?: string };
   mode?: 'lineup' | 'starting-lineup' | 'result';
   matchResult?: MatchResult;
   startingLineup?: StartingLineup;

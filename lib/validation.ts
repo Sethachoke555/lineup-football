@@ -1,3 +1,4 @@
+import { validateIntroSnapshot } from './intro-snapshot';
 import { FORMATIONS, SIZES, type Project } from '@/types/project';
 import { startingLineupBackgrounds } from '@/features/starting-lineup/utils/backgrounds';
 type RecordValue = Record<string, unknown>;
@@ -30,6 +31,7 @@ function photoVersions(value: unknown, active: unknown) {
 }
 export function validateProject(value: unknown): Project {
   const p = record(value, 'project data');
+  if(p.introStudio !== undefined){const intro=record(p.introStudio,'intro studio');for(const key of ['player','team'])if(intro[key]!==undefined){if(typeof intro[key]!=='string')throw new Error('Invalid intro snapshot.');validateIntroSnapshot(intro[key] as string);}}
   if (p.version !== 1) throw new Error('This project version is not supported.');
   if (p.mode !== undefined) choice(p.mode, ['lineup', 'starting-lineup', 'result'], 'editor mode');
   if (p.mode === 'result' && !p.matchResult) throw new Error('Missing match result.');
